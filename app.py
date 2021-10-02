@@ -2,13 +2,11 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 
-import database_of_students as dos
+import database_of_students
 from config import BOT_TOKEN
-import what_day
+from database import DateTime
 from keyboards.choosing_classes import classes_markup
-from test import random_digit
 from states.state_1 import State_for_classes
-from db.database import function_for_correct_date
 
 bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
@@ -24,13 +22,18 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(state=State_for_classes.class_)
 async def send_who_is_duty(message: types.Message, state: FSMContext):
-
     async with state.proxy() as data:
         data['class_'] = message.text
 
     await State_for_classes.next()
 
-    await message.reply(f"You are put {day, month, year, counter}")
+    date = DateTime()
+    counter = date.function_for_correct_date()
+
+    if data['class_'] == '11а':
+        await message.reply(
+            f"Сегодня дежурит {database_of_students.elevenA[counter][0]} {database_of_students.elevenA[counter][1]}",
+            reply_markup=types.ReplyKeyboardRemove())
 
 
 if __name__ == '__main__':
